@@ -5,3 +5,11 @@ services:
     _defaults:
         autowire: false
         public: false
+
+    avathar.bbdkp.dkp_ledger:
+        class: avathar\bbdkp\service\dkp_ledger
+        arguments:
+            - '@dbal.conn'
+            - '@avathar.bbaccounts.service.ledger'
+            - '%tables.bbdkp_ledger_link%'
+        public: true
