@@ -4,6 +4,85 @@
 
 <h1>{L_ACP_DKP_EVENTS}</h1>
 <p>{L_ACP_DKP_EVENTS_EXPLAIN}</p>
-<p><em>Event management UI lands in Phase 7.</em></p>
+
+<!-- IF S_FORM -->
+	<form id="event_form" method="post" action="{U_ACTION}">
+		<fieldset>
+			<legend><!-- IF S_IS_EDIT -->{L_EVENT_EDIT}<!-- ELSE -->{L_EVENT_ADD}<!-- ENDIF --></legend>
+			<dl>
+				<dt><label for="pool_id">{L_EVENT_POOL}:</label></dt>
+				<dd>
+					<select name="pool_id" id="pool_id" <!-- IF S_IS_EDIT -->disabled<!-- ENDIF --> required>
+					<!-- BEGIN form_pool_options -->
+						<option value="{form_pool_options.ID}" <!-- IF form_pool_options.SELECTED -->selected<!-- ENDIF -->>{form_pool_options.NAME}</option>
+					<!-- END form_pool_options -->
+					</select>
+				</dd>
+			</dl>
+			<dl>
+				<dt><label for="event_name">{L_EVENT_NAME}:</label></dt>
+				<dd><input type="text" id="event_name" name="event_name" value="{EVENT_NAME}" maxlength="255" required></dd>
+			</dl>
+			<dl>
+				<dt><label for="event_value">{L_EVENT_VALUE}:</label></dt>
+				<dd><input type="number" id="event_value" name="event_value" value="{EVENT_VALUE}" step="0.01" min="0"></dd>
+			</dl>
+			<dl>
+				<dt><label for="event_color">{L_EVENT_COLOR}:</label></dt>
+				<dd><input type="text" id="event_color" name="event_color" value="{EVENT_COLOR}" maxlength="8" placeholder="#RRGGBB"></dd>
+			</dl>
+			<dl>
+				<dt><label for="event_icon">{L_EVENT_ICON}:</label></dt>
+				<dd><input type="text" id="event_icon" name="event_icon" value="{EVENT_ICON}" maxlength="255"></dd>
+			</dl>
+			<p class="submit-buttons">
+				<input type="submit" name="submit" value="{L_SUBMIT}" class="button1">
+				&nbsp; <a href="{U_BACK}">{L_CANCEL}</a>
+			</p>
+			{S_FORM_TOKEN}
+		</fieldset>
+	</form>
+<!-- ELSE -->
+	<p><a href="{U_ACTION}&amp;action=add" class="button1">{L_EVENT_ADD}</a></p>
+
+	<form method="get" action="{U_ACTION}">
+		<label for="filter_pool">{L_FILTER_BY_POOL}:</label>
+		<select id="filter_pool" name="filter_pool" onchange="this.form.submit()">
+			<option value="0">{L_ALL_POOLS}</option>
+		<!-- BEGIN pool_options -->
+			<option value="{pool_options.ID}" <!-- IF pool_options.SELECTED -->selected<!-- ENDIF -->>{pool_options.NAME}</option>
+		<!-- END pool_options -->
+		</select>
+	</form>
+
+	<table class="table1">
+		<thead>
+			<tr>
+				<th>{L_EVENT_NAME}</th>
+				<th>{L_EVENT_POOL}</th>
+				<th>{L_EVENT_VALUE}</th>
+				<th>{L_EVENT_STATUS}</th>
+				<th>{L_EVENT_ACTIONS}</th>
+			</tr>
+		</thead>
+		<tbody>
+		<!-- BEGIN events -->
+			<tr>
+				<td>{events.NAME}</td>
+				<td>{events.POOL_NAME}</td>
+				<td>{events.VALUE}</td>
+				<td><!-- IF events.STATUS -->{L_EVENT_ACTIVE}<!-- ELSE -->{L_EVENT_INACTIVE}<!-- ENDIF --></td>
+				<td>
+					<a href="{events.U_EDIT}">{L_EVENT_EDIT}</a>
+					<!-- IF events.STATUS --> | <a href="{events.U_DISABLE}">{L_EVENT_DISABLE}</a><!-- ENDIF -->
+					 | <a href="{events.U_DELETE}">{L_EVENT_DELETE}</a>
+				</td>
+			</tr>
+		<!-- BEGINELSE -->
+			<tr><td colspan="5"><em>{L_EVENT_NONE}</em></td></tr>
+		<!-- END events -->
+		</tbody>
+	</table>
+<!-- ENDIF -->
 
 <!-- INCLUDE overall_footer.html -->

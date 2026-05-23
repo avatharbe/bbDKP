@@ -22,3 +22,12 @@ services:
             - '@user'
             - '%tables.bbdkp_pools%'
         public: true
+
+    avathar.bbdkp.event_manager:
+        class: avathar\bbdkp\service\event_manager
+        arguments:
+            - '@dbal.conn'
+            - '@user'
+            - '%tables.bbdkp_events%'
+            - '%tables.bbdkp_raids%'
+        public: true
