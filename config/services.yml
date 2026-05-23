@@ -13,3 +13,12 @@ services:
             - '@avathar.bbaccounts.service.ledger'
             - '%tables.bbdkp_ledger_link%'
         public: true
+
+    avathar.bbdkp.pool_manager:
+        class: avathar\bbdkp\service\pool_manager
+        arguments:
+            - '@dbal.conn'
+            - '@avathar.bbdkp.dkp_ledger'
+            - '@user'
+            - '%tables.bbdkp_pools%'
+        public: true

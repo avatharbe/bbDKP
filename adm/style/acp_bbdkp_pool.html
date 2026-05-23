@@ -4,6 +4,64 @@
 
 <h1>{L_ACP_DKP_POOLS}</h1>
 <p>{L_ACP_DKP_POOLS_EXPLAIN}</p>
-<p><em>Pool management UI lands in Phase 6.</em></p>
+
+<!-- IF S_FORM -->
+	<form id="pool_form" method="post" action="{U_ACTION}">
+		<fieldset>
+			<legend><!-- IF S_IS_EDIT -->{L_POOL_EDIT}<!-- ELSE -->{L_POOL_ADD}<!-- ENDIF --></legend>
+			<dl>
+				<dt><label for="guild_id">{L_POOL_GUILD}:</label></dt>
+				<dd><input type="number" id="guild_id" name="guild_id" value="{POOL_GUILD_ID}" min="0" required<!-- IF S_IS_EDIT --> disabled<!-- ENDIF -->></dd>
+			</dl>
+			<dl>
+				<dt><label for="pool_name">{L_POOL_NAME}:</label></dt>
+				<dd><input type="text" id="pool_name" name="pool_name" value="{POOL_NAME}" maxlength="255" required></dd>
+			</dl>
+			<dl>
+				<dt><label for="pool_desc">{L_POOL_DESC}:</label></dt>
+				<dd><input type="text" id="pool_desc" name="pool_desc" value="{POOL_DESC}" maxlength="255"></dd>
+			</dl>
+			<p class="submit-buttons">
+				<input type="submit" name="submit" value="{L_SUBMIT}" class="button1">
+				&nbsp; <a href="{U_BACK}">{L_CANCEL}</a>
+			</p>
+			{S_FORM_TOKEN}
+		</fieldset>
+	</form>
+<!-- ELSE -->
+	<p><a href="{U_ACTION}&amp;action=add" class="button1">{L_POOL_ADD}</a></p>
+
+	<table class="table1">
+		<thead>
+			<tr>
+				<th>{L_POOL_NAME}</th>
+				<th>{L_POOL_GUILD}</th>
+				<th>{L_POOL_DESC}</th>
+				<th>{L_POOL_STATUS}</th>
+				<th>{L_POOL_DEFAULT}</th>
+				<th>{L_POOL_ACTIONS}</th>
+			</tr>
+		</thead>
+		<tbody>
+		<!-- BEGIN pools -->
+			<tr>
+				<td>{pools.NAME}</td>
+				<td>{pools.GUILD_ID}</td>
+				<td>{pools.DESC}</td>
+				<td><!-- IF pools.STATUS -->{L_POOL_ACTIVE}<!-- ELSE -->{L_POOL_INACTIVE}<!-- ENDIF --></td>
+				<td><!-- IF pools.IS_DEFAULT -->&#10003;<!-- ENDIF --></td>
+				<td>
+					<a href="{pools.U_EDIT}">{L_POOL_EDIT}</a>
+					<!-- IF not pools.IS_DEFAULT --> | <a href="{pools.U_DEFAULT}">{L_POOL_SET_DEFAULT}</a><!-- ENDIF -->
+					<!-- IF pools.STATUS --> | <a href="{pools.U_DISABLE}">{L_POOL_DISABLE}</a><!-- ENDIF -->
+					 | <a href="{pools.U_DELETE}">{L_POOL_DELETE}</a>
+				</td>
+			</tr>
+		<!-- BEGINELSE -->
+			<tr><td colspan="6"><em>{L_POOL_NONE}</em></td></tr>
+		<!-- END pools -->
+		</tbody>
+	</table>
+<!-- ENDIF -->
 
 <!-- INCLUDE overall_footer.html -->
