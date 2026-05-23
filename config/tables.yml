@@ -1,0 +1,10 @@
+parameters:
+    tables.bbdkp_pools:                  '%core.table_prefix%bb_dkp_pools'
+    tables.bbdkp_events:                 '%core.table_prefix%bb_dkp_events'
+    tables.bbdkp_raids:                  '%core.table_prefix%bb_dkp_raids'
+    tables.bbdkp_raid_attendees:         '%core.table_prefix%bb_dkp_raid_attendees'
+    tables.bbdkp_items:                  '%core.table_prefix%bb_dkp_items'
+    tables.bbdkp_loot:                   '%core.table_prefix%bb_dkp_loot'
+    tables.bbdkp_adjustments:            '%core.table_prefix%bb_dkp_adjustments'
+    tables.bbdkp_adjustment_recipients:  '%core.table_prefix%bb_dkp_adjustment_recipients'
+    tables.bbdkp_ledger_link:            '%core.table_prefix%bb_dkp_ledger_link'
