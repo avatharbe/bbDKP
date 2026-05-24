@@ -111,6 +111,8 @@ interface raid_manager_interface
 
     /**
      * Editable fields: raid_end, raid_note, raid_value, event_id.
+     * raid_start, pool_id, guild_id are NOT editable — they're the raid's identity.
+     * Admins fix a wrongly-dated/wrongly-scoped raid by delete + re-add.
      * raid_value change cascades reverse+repost for attendees with value_override IS NULL.
      * event_id change is metadata-only.
      */
@@ -151,7 +153,11 @@ interface adjustment_manager_interface
      */
     public function create_adjustment(int $pool_id, string $reason, array $recipients): int;
 
-    /** Editable fields: reason only. Amount edits go via remove_recipients + add_recipients. */
+    /**
+     * Editable fields: reason only.
+     * pool_id, adjustment_date are NOT editable — re-creating preserves audit chronology.
+     * Amount edits go via remove_recipients + add_recipients (reverse + repost).
+     */
     public function update_adjustment(int $adjustment_id, array $fields): void;
 
     public function add_recipients(int $adjustment_id, array $recipients): void;
@@ -355,7 +361,7 @@ Constructor changes: `pool_manager` + `event_manager` gain `\phpbb\log\log_inter
 
 ## 10. Error handling
 
-Two new typed exceptions extend the alpha1 base:
+Two new typed exceptions follow the alpha1 pattern (sit alongside `bbdkp\exception\runtime_exception` in the same namespace, extend `\RuntimeException` directly):
 
 ```php
 namespace avathar\bbdkp\exception;
@@ -408,7 +414,7 @@ Validation ordering (raid form): all pure validations run **before** the transac
 - Edit raid_value from 50 → 75 → attendees with NULL override gain +25; attendee with override unchanged
 - Edit one attendee's value_override → only that player's balance moves
 - Delete raid → all attendee balances revert
-- Bulk adjustment +50 to 5 chars → 5 recipient rows, 5 ledger entries with one shared `group_key`, 5 balance updates
+- Bulk adjustment +50 to 5 chars → 5 recipient rows all sharing the adjustment header's `group_key`, 5 bbAccounts journal entries, 5 balance updates
 - Bulk adjustment -50 → opposite direction, same group_key shape
 - Delete adjustment → reverses all 5
 - Disable a pool, try to add a raid against it → blocked with `RAID_POOL_DISABLED` (proper error, not blank page)
