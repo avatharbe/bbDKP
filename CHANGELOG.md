@@ -59,5 +59,7 @@ attendees, items, loot, adjustments) plus a ledger-link bridge table.
   intentionally blocked at the service layer to preserve audit history.
 - Pool hard-delete throws unconditionally pending a future bbAccounts
   ticket exposing an account-delete API.
+- Automated test suite deferred to alpha2 (no functional or service-layer
+  tests ship with alpha1). All PHP files pass `php -l` syntax check.
 
 [2.0.0-alpha1]: https://github.com/avatharbe/bbDKP/releases/tag/v2.0.0-alpha1
