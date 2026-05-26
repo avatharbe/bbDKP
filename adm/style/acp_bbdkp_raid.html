@@ -1,0 +1,139 @@
+<!-- INCLUDE overall_header.html -->
+
+<a id="maincontent"></a>
+
+<h1>{L_ACP_DKP_RAIDS}</h1>
+<p>{L_ACP_DKP_RAIDS_EXPLAIN}</p>
+
+<!-- IF S_FORM -->
+	<form id="raid_form" method="post" action="{U_ACTION}">
+		<fieldset>
+			<legend><!-- IF S_IS_EDIT -->{L_RAID_EDIT}<!-- ELSE -->{L_RAID_ADD}<!-- ENDIF --></legend>
+
+			<dl>
+				<dt><label for="guild_id">{L_RAID_POOL} (guild):</label></dt>
+				<dd><input type="number" id="guild_id" name="guild_id" value="{RAID_GUILD}" min="1" required<!-- IF S_IS_EDIT --> disabled<!-- ENDIF -->></dd>
+			</dl>
+
+			<dl>
+				<dt><label for="pool_id">{L_RAID_POOL}:</label></dt>
+				<dd>
+					<select id="pool_id" name="pool_id"<!-- IF S_IS_EDIT --> disabled<!-- ENDIF --> required>
+					<!-- BEGIN pool_options -->
+						<option value="{pool_options.POOL_ID}"<!-- IF pool_options.SELECTED --> selected<!-- ENDIF -->>{pool_options.POOL_NAME}</option>
+					<!-- BEGINELSE -->
+						<option value="0">— no pools —</option>
+					<!-- END pool_options -->
+					</select>
+				</dd>
+			</dl>
+
+			<dl>
+				<dt><label for="event_id">{L_RAID_EVENT}:</label></dt>
+				<dd>
+					<select id="event_id" name="event_id" required>
+					<!-- BEGIN event_options -->
+						<option value="{event_options.EVENT_ID}" data-pool="{event_options.POOL_ID}"<!-- IF event_options.SELECTED --> selected<!-- ENDIF -->>{event_options.EVENT_NAME}</option>
+					<!-- BEGINELSE -->
+						<option value="0">— no events —</option>
+					<!-- END event_options -->
+					</select>
+				</dd>
+			</dl>
+
+			<dl>
+				<dt><label for="raid_start">{L_RAID_START}:</label></dt>
+				<dd><input type="number" id="raid_start" name="raid_start" value="{RAID_START}" min="0" required<!-- IF S_IS_EDIT --> disabled<!-- ENDIF -->></dd>
+			</dl>
+
+			<dl>
+				<dt><label for="raid_end">{L_RAID_END}:</label></dt>
+				<dd><input type="number" id="raid_end" name="raid_end" value="{RAID_END}" min="0"></dd>
+			</dl>
+
+			<dl>
+				<dt><label for="raid_value">{L_RAID_VALUE}:</label></dt>
+				<dd><input type="text" id="raid_value" name="raid_value" value="{RAID_VALUE}" pattern="^-?[0-9]+(\.[0-9]+)?$" required></dd>
+			</dl>
+
+			<dl>
+				<dt><label for="raid_note">{L_RAID_NOTE}:</label></dt>
+				<dd><textarea id="raid_note" name="raid_note" rows="3" cols="60">{RAID_NOTE}</textarea></dd>
+			</dl>
+
+			<fieldset>
+				<legend>{L_RAID_ATTENDEES}</legend>
+
+				<!-- IF S_IS_EDIT -->
+					<table class="table1">
+						<thead><tr><th>Attendee</th><th>{L_RAID_ATTENDEE_VALUE}</th></tr></thead>
+						<tbody>
+						<!-- BEGIN existing_attendees -->
+							<tr>
+								<td>player #{existing_attendees.PLAYER_ID}</td>
+								<td>{existing_attendees.VALUE_OVERRIDE}</td>
+							</tr>
+						<!-- BEGINELSE -->
+							<tr><td colspan="2"><em>(none yet)</em></td></tr>
+						<!-- END existing_attendees -->
+						</tbody>
+					</table>
+					<p><em>Attendee changes during edit are not exposed in alpha2 ACP; use delete + re-add for now.</em></p>
+				<!-- ELSE -->
+					<table class="table1">
+						<thead><tr><th>+</th><th>Player</th><th>{L_RAID_ATTENDEE_VALUE}</th></tr></thead>
+						<tbody>
+						<!-- BEGIN player_picker -->
+							<tr>
+								<td><input type="checkbox" name="attendee_ids[]" value="{player_picker.PLAYER_ID}"<!-- IF player_picker.SELECTED --> checked<!-- ENDIF -->></td>
+								<td>{player_picker.PLAYER_NAME}<!-- IF player_picker.REALM --> ({player_picker.REALM})<!-- ENDIF --></td>
+								<td><input type="text" name="attendee_overrides[]" placeholder="(default)" size="8" pattern="^-?[0-9]+(\.[0-9]+)?$"></td>
+							</tr>
+						<!-- BEGINELSE -->
+							<tr><td colspan="3"><em>(no players in this guild yet)</em></td></tr>
+						<!-- END player_picker -->
+						</tbody>
+					</table>
+				<!-- ENDIF -->
+			</fieldset>
+
+			<p class="submit-buttons">
+				<input type="submit" name="submit" value="{L_SUBMIT}" class="button1">
+				&nbsp; <a href="{U_BACK}">{L_CANCEL}</a>
+			</p>
+			{S_FORM_TOKEN}
+		</fieldset>
+	</form>
+<!-- ELSE -->
+	<p><a href="{U_ACTION}&amp;action=add" class="button1">{L_RAID_ADD}</a></p>
+
+	<table class="table1">
+		<thead>
+			<tr>
+				<th>{L_RAID_EVENT}</th>
+				<th>{L_RAID_START}</th>
+				<th>{L_RAID_VALUE}</th>
+				<th>{L_RAID_ATTENDEES}</th>
+				<th>{L_RAID_ACTIONS}</th>
+			</tr>
+		</thead>
+		<tbody>
+		<!-- BEGIN raids -->
+			<tr>
+				<td>{raids.EVENT_NAME}</td>
+				<td>{raids.RAID_START}</td>
+				<td>{raids.RAID_VALUE}</td>
+				<td>{raids.ATTENDEE_COUNT}</td>
+				<td>
+					<a href="{raids.U_EDIT}">{L_RAID_EDIT}</a>
+					| <a href="{raids.U_DELETE}">{L_RAID_DELETE}</a>
+				</td>
+			</tr>
+		<!-- BEGINELSE -->
+			<tr><td colspan="5"><em>{L_RAID_NONE}</em></td></tr>
+		<!-- END raids -->
+		</tbody>
+	</table>
+<!-- ENDIF -->
+
+<!-- INCLUDE overall_footer.html -->
