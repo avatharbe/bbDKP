@@ -15,6 +15,9 @@ class event_manager implements event_manager_interface
 	/** @var \phpbb\user */
 	private $user;
 
+	/** @var \phpbb\log\log_interface */
+	private $log;
+
 	/** @var string */
 	private $table_events;
 
@@ -24,12 +27,14 @@ class event_manager implements event_manager_interface
 	public function __construct(
 		\phpbb\db\driver\driver_interface $db,
 		\phpbb\user $user,
+		\phpbb\log\log_interface $log,
 		string $table_events,
 		string $table_raids
 	)
 	{
 		$this->db = $db;
 		$this->user = $user;
+		$this->log = $log;
 		$this->table_events = $table_events;
 		$this->table_raids = $table_raids;
 	}
@@ -60,8 +65,11 @@ class event_manager implements event_manager_interface
 
 		$this->db->sql_query('INSERT INTO ' . $this->table_events . ' '
 			. $this->db->sql_build_array('INSERT', $sql_ary));
+		$event_id = (int) $this->db->sql_nextid();
 
-		return (int) $this->db->sql_nextid();
+		$this->log->add('admin', $uid, $this->user->ip, 'LOG_EVENT_ADDED', false, [$name]);
+
+		return $event_id;
 	}
 
 	public function update_event(int $event_id, array $fields): void
@@ -80,6 +88,13 @@ class event_manager implements event_manager_interface
 		$this->db->sql_query('UPDATE ' . $this->table_events . ' SET '
 			. $this->db->sql_build_array('UPDATE', $sql_ary)
 			. ' WHERE event_id = ' . (int) $event_id);
+
+		$event = $this->get_event($event_id);
+		if ($event)
+		{
+			$this->log->add('admin', (int) $this->user->data['user_id'], $this->user->ip,
+				'LOG_EVENT_UPDATED', false, [$event['event_name']]);
+		}
 	}
 
 	public function disable_event(int $event_id): void
@@ -89,6 +104,8 @@ class event_manager implements event_manager_interface
 
 	public function delete_event(int $event_id): void
 	{
+		$event = $this->get_event($event_id);
+
 		// Block delete if any raid references this event — history wins
 		// over schema cleanup. Operators can disable the event instead.
 		$sql = 'SELECT 1 FROM ' . $this->table_raids
@@ -99,13 +116,17 @@ class event_manager implements event_manager_interface
 
 		if ($has_raids)
 		{
-			throw new \RuntimeException(
-				"Cannot delete event {$event_id} — raids reference it. Disable instead."
-			);
+			throw new \RuntimeException('EVENT_DELETE_BLOCKED');
 		}
 
 		$this->db->sql_query('DELETE FROM ' . $this->table_events
 			. ' WHERE event_id = ' . (int) $event_id);
+
+		if ($event)
+		{
+			$this->log->add('admin', (int) $this->user->data['user_id'], $this->user->ip,
+				'LOG_EVENT_DELETED', false, [$event['event_name']]);
+		}
 	}
 
 	public function list_events(int $pool_id = 0): array

@@ -18,6 +18,9 @@ class pool_manager implements pool_manager_interface
 	/** @var \phpbb\user */
 	private $user;
 
+	/** @var \phpbb\log\log_interface */
+	private $log;
+
 	/** @var string */
 	private $table_pools;
 
@@ -25,19 +28,19 @@ class pool_manager implements pool_manager_interface
 		\phpbb\db\driver\driver_interface $db,
 		dkp_ledger_interface $ledger,
 		\phpbb\user $user,
+		\phpbb\log\log_interface $log,
 		string $table_pools
 	)
 	{
 		$this->db = $db;
 		$this->ledger = $ledger;
 		$this->user = $user;
+		$this->log = $log;
 		$this->table_pools = $table_pools;
 	}
 
 	public function create_pool(int $guild_id, string $name, string $desc = ''): int
 	{
-		// Pre-check duplicate so consumers get a clean exception rather
-		// than a DBAL UNIQUE-constraint failure.
 		if ($this->name_in_use($guild_id, $name))
 		{
 			throw new \RuntimeException("Pool name '{$name}' already exists in guild {$guild_id}");
@@ -64,6 +67,8 @@ class pool_manager implements pool_manager_interface
 
 		$this->ledger->mint_pool_accounts($pool_id);
 
+		$this->log->add('admin', $uid, $this->user->ip, 'LOG_DKPSYS_ADDED', false, [$name]);
+
 		return $pool_id;
 	}
 
@@ -77,12 +82,20 @@ class pool_manager implements pool_manager_interface
 			return;
 		}
 
-		$sql_ary['updated_at'] = time();
-		$sql_ary['updated_by'] = (int) $this->user->data['user_id'];
+		$now = time();
+		$uid = (int) $this->user->data['user_id'];
+		$sql_ary['updated_at'] = $now;
+		$sql_ary['updated_by'] = $uid;
 
 		$this->db->sql_query('UPDATE ' . $this->table_pools . ' SET '
 			. $this->db->sql_build_array('UPDATE', $sql_ary)
 			. ' WHERE pool_id = ' . (int) $pool_id);
+
+		$pool = $this->get_pool($pool_id);
+		if ($pool)
+		{
+			$this->log->add('admin', $uid, $this->user->ip, 'LOG_DKPSYS_UPDATED', false, [$pool['pool_name']]);
+		}
 	}
 
 	public function disable_pool(int $pool_id): void
@@ -93,12 +106,18 @@ class pool_manager implements pool_manager_interface
 
 	public function delete_pool(int $pool_id): void
 	{
-		// In alpha1, delete_pool_accounts always throws; the ACP module
-		// catches the RuntimeException and surfaces POOL_DELETE_BLOCKED.
+		$pool = $this->get_pool($pool_id);
+
 		$this->ledger->delete_pool_accounts($pool_id);
 
 		$this->db->sql_query('DELETE FROM ' . $this->table_pools
 			. ' WHERE pool_id = ' . (int) $pool_id);
+
+		if ($pool)
+		{
+			$uid = (int) $this->user->data['user_id'];
+			$this->log->add('admin', $uid, $this->user->ip, 'LOG_DKPSYS_DELETED', false, [$pool['pool_name']]);
+		}
 	}
 
 	public function set_default(int $pool_id): void

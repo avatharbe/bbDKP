@@ -20,6 +20,7 @@ services:
             - '@dbal.conn'
             - '@avathar.bbdkp.dkp_ledger'
             - '@user'
+            - '@log'
             - '%tables.bbdkp_pools%'
         public: true
 
@@ -28,6 +29,41 @@ services:
         arguments:
             - '@dbal.conn'
             - '@user'
+            - '@log'
             - '%tables.bbdkp_events%'
             - '%tables.bbdkp_raids%'
         public: true
+
+    avathar.bbdkp.raid_manager:
+        class: avathar\bbdkp\service\raid_manager
+        arguments:
+            - '@dbal.conn'
+            - '@avathar.bbdkp.dkp_ledger'
+            - '@user'
+            - '@log'
+            - '%tables.bbdkp_raids%'
+            - '%tables.bbdkp_raid_attendees%'
+            - '%tables.bbdkp_pools%'
+            - '%tables.bbdkp_events%'
+            - '%tables.bbdkp_ledger_link%'
+        public: true
+
+    avathar.bbdkp.adjustment_manager:
+        class: avathar\bbdkp\service\adjustment_manager
+        arguments:
+            - '@dbal.conn'
+            - '@avathar.bbdkp.dkp_ledger'
+            - '@user'
+            - '@log'
+            - '%tables.bbdkp_adjustments%'
+            - '%tables.bbdkp_adjustment_recipients%'
+            - '%tables.bbdkp_pools%'
+            - '%tables.bbdkp_ledger_link%'
+        public: true
+
+    avathar.bbdkp.event.log_listener:
+        class: avathar\bbdkp\event\log_listener
+        arguments:
+            - '@user'
+        tags:
+            - { name: event.listener }
