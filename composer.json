@@ -3,8 +3,8 @@
     "type": "phpbb-extension",
     "description": "DKP (Dragon Kill Points) system for phpBB 3.3, integrating with bbGuild for guild/character management and bbAccounts for canonical double-entry point storage.",
     "homepage": "https://github.com/avatharbe/bbDKP",
-    "version": "2.0.0-alpha1",
-    "time": "2026-05-23",
+    "version": "2.0.0-alpha2",
+    "time": "2026-05-26",
     "keywords": ["phpbb", "extension", "dkp", "raid", "loot", "guild"],
     "license": "GPL-2.0-only",
     "authors": [

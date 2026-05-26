@@ -3,6 +3,48 @@
 All notable changes to bbDKP v2.x will be documented in this file. Format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [2.0.0-alpha2] — 2026-05-26
+
+First posting surface ships: admins can record raids with attendance and
+issue manual DKP adjustments. Every action now writes to phpBB's mod log
+through bbDKP-specific log types.
+
+### Added
+
+- **`raid_manager` service + raid ACP module** — full CRUD with
+  multi-select character picker for attendance, per-attendee
+  `value_override` field, and edit-raid-value cascade that reverses
+  prior ledger entries and reposts at the new amount (improves on the
+  legacy bbDKPMOD which rewrote balances in place).
+- **`adjustment_manager` service + adjustment ACP module** — bulk-add
+  with multi-select recipients, single signed amount, single reason,
+  one shared `group_key` per adjustment.
+- **Log type registration** — new `event/log_listener.php` subscriber
+  registers 13 bbDKP log type translations (DKPSYS_*, EVENT_*, RAID_*,
+  INDIVADJ_*, PLAYERDKP_*) via `core.user_setup`. All four CRUD services
+  — including the alpha1 pool and event paths — now write entries to
+  `phpbb_log` so admin actions appear in ACP → System → Admin log.
+- **Migration `v200a2`** registers the two new ACP modes, adds missing
+  audit columns to `bb_dkp_raid_attendees` (omitted from alpha1's
+  install migration), and bumps `bbdkp_version`.
+
+### Notes
+
+- Attendee membership edits (add/remove individual players on an
+  existing raid) and recipient list edits on an existing adjustment
+  go through delete + re-add in alpha2; full in-place editing of
+  these collections is alpha3+.
+- `value_override` on `bb_dkp_raid_attendees` uses `0` as the
+  "no override, use raid_value default" sentinel (alpha1 created the
+  column as non-null DECIMAL with default 0; same pattern as
+  `bb_dkp_ledger_link.reversal_of`). To set a literal 0-DKP override,
+  use a post-raid adjustment of -X.
+- Automated test suite still deferred (alpha3 / first CI-ready alpha).
+- Manual smoke checklist documented in
+  `contrib/plans/2026-05-26-bbdkp-v2-alpha2-plan.md` (Task 30); not yet
+  executed against this build.
+- `dkp_ledger` itself is unchanged from alpha1.
+
 ## [2.0.0-alpha1] — 2026-05-23
 
 Ground-up rewrite of bbDKPMOD v1.4.6. New architecture: bbAccounts as
@@ -62,4 +104,5 @@ attendees, items, loot, adjustments) plus a ledger-link bridge table.
 - Automated test suite deferred to alpha2 (no functional or service-layer
   tests ship with alpha1). All PHP files pass `php -l` syntax check.
 
+[2.0.0-alpha2]: https://github.com/avatharbe/bbDKP/releases/tag/v2.0.0-alpha2
 [2.0.0-alpha1]: https://github.com/avatharbe/bbDKP/releases/tag/v2.0.0-alpha1
