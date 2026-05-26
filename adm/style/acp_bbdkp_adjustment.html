@@ -1,0 +1,112 @@
+<!-- INCLUDE overall_header.html -->
+
+<a id="maincontent"></a>
+
+<h1>{L_ACP_DKP_ADJUSTMENTS}</h1>
+<p>{L_ACP_DKP_ADJUSTMENTS_EXPLAIN}</p>
+
+<!-- IF S_FORM -->
+	<form id="adj_form" method="post" action="{U_ACTION}">
+		<fieldset>
+			<legend><!-- IF S_IS_EDIT -->{L_ADJ_EDIT}<!-- ELSE -->{L_ADJ_ADD}<!-- ENDIF --></legend>
+
+			<dl>
+				<dt><label for="pool_id">{L_ADJ_POOL}:</label></dt>
+				<dd>
+					<select id="pool_id" name="pool_id"<!-- IF S_IS_EDIT --> disabled<!-- ENDIF --> required>
+					<!-- BEGIN pool_options -->
+						<option value="{pool_options.POOL_ID}"<!-- IF pool_options.SELECTED --> selected<!-- ENDIF -->>{pool_options.POOL_NAME}</option>
+					<!-- BEGINELSE -->
+						<option value="0">— no pools —</option>
+					<!-- END pool_options -->
+					</select>
+				</dd>
+			</dl>
+
+			<dl>
+				<dt><label for="reason">{L_ADJ_REASON}:</label></dt>
+				<dd><input type="text" id="reason" name="reason" value="{ADJ_REASON}" maxlength="255" required></dd>
+			</dl>
+
+			<!-- IF not S_IS_EDIT -->
+				<dl>
+					<dt><label for="amount">{L_ADJ_AMOUNT}:</label></dt>
+					<dd><input type="text" id="amount" name="amount" value="0" pattern="^-?[0-9]+(\.[0-9]+)?$" required></dd>
+				</dl>
+
+				<fieldset>
+					<legend>{L_ADJ_RECIPIENTS}</legend>
+					<table class="table1">
+						<thead><tr><th>+</th><th>Player</th><th>Guild</th></tr></thead>
+						<tbody>
+						<!-- BEGIN player_picker -->
+							<tr>
+								<td><input type="checkbox" name="recipient_ids[]" value="{player_picker.PLAYER_ID}"></td>
+								<td>{player_picker.PLAYER_NAME}<!-- IF player_picker.REALM --> ({player_picker.REALM})<!-- ENDIF --></td>
+								<td>{player_picker.GUILD_ID}</td>
+							</tr>
+						<!-- BEGINELSE -->
+							<tr><td colspan="3"><em>(no players)</em></td></tr>
+						<!-- END player_picker -->
+						</tbody>
+					</table>
+				</fieldset>
+			<!-- ELSE -->
+				<fieldset>
+					<legend>{L_ADJ_RECIPIENTS}</legend>
+					<table class="table1">
+						<thead><tr><th>Player</th><th>{L_ADJ_AMOUNT}</th></tr></thead>
+						<tbody>
+						<!-- BEGIN existing_recipients -->
+							<tr><td>player #{existing_recipients.PLAYER_ID}</td><td>{existing_recipients.AMOUNT}</td></tr>
+						<!-- BEGINELSE -->
+							<tr><td colspan="2"><em>(none)</em></td></tr>
+						<!-- END existing_recipients -->
+						</tbody>
+					</table>
+					<p><em>Recipient lists are immutable after creation in alpha2; delete + re-add to change them.</em></p>
+				</fieldset>
+			<!-- ENDIF -->
+
+			<p class="submit-buttons">
+				<input type="submit" name="submit" value="{L_SUBMIT}" class="button1">
+				&nbsp; <a href="{U_BACK}">{L_CANCEL}</a>
+			</p>
+			{S_FORM_TOKEN}
+		</fieldset>
+	</form>
+<!-- ELSE -->
+	<p><a href="{U_ACTION}&amp;action=add" class="button1">{L_ADJ_ADD}</a></p>
+
+	<table class="table1">
+		<thead>
+			<tr>
+				<th>{L_ADJ_REASON}</th>
+				<th>{L_ADJ_POOL}</th>
+				<th>{L_ADJ_DATE}</th>
+				<th>{L_ADJ_RECIPIENTS}</th>
+				<th>{L_ADJ_TOTAL}</th>
+				<th>{L_ADJ_ACTIONS}</th>
+			</tr>
+		</thead>
+		<tbody>
+		<!-- BEGIN adjustments -->
+			<tr>
+				<td>{adjustments.REASON}</td>
+				<td>#{adjustments.POOL_ID}</td>
+				<td>{adjustments.DATE}</td>
+				<td>{adjustments.RECIPIENT_COUNT}</td>
+				<td>{adjustments.TOTAL}</td>
+				<td>
+					<a href="{adjustments.U_EDIT}">{L_ADJ_EDIT}</a>
+					| <a href="{adjustments.U_DELETE}">{L_ADJ_DELETE}</a>
+				</td>
+			</tr>
+		<!-- BEGINELSE -->
+			<tr><td colspan="6"><em>{L_ADJ_NONE}</em></td></tr>
+		<!-- END adjustments -->
+		</tbody>
+	</table>
+<!-- ENDIF -->
+
+<!-- INCLUDE overall_footer.html -->
